@@ -48,3 +48,46 @@
     {user: principal, campaign-id: uint} 
     {amount: uint, timestamp: uint}
 )
+
+
+;; Read-only functions
+(define-read-only (get-token-uri (token-id uint))
+    (map-get? token-uri token-id)
+)
+
+(define-read-only (get-owner (token-id uint))
+    (map-get? nft-owners token-id)
+)
+
+(define-read-only (get-price (token-id uint))
+    (map-get? nft-price token-id)
+)
+
+(define-read-only (get-token-metadata (token-id uint))
+    (map-get? nft-metadata token-id)
+)
+
+(define-read-only (get-campaign-details (campaign-id uint))
+    (map-get? charity-campaigns campaign-id)
+)
+
+(define-read-only (get-user-donation-history (user principal) (campaign-id uint))
+    (map-get? user-donations {user: user, campaign-id: campaign-id})
+)
+
+
+;; Private functions
+(define-private (check-owner (token-id uint) (acc uint))
+    (if (is-eq (some tx-sender) (map-get? nft-owners token-id))
+        (+ acc u1)
+        acc
+    )
+)
+
+(define-private (transfer-token (token-id uint) (sender principal) (recipient principal))
+    (begin
+        (map-set nft-owners token-id recipient)
+        (ok true)
+    )
+)
+
